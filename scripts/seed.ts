@@ -12,13 +12,14 @@ import {
   LessonProgressStatus,
   QuestionType,
   TeamMemberRole,
+  RefundStatus,
 } from "../app/db/schema";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const migrationsFolder = path.resolve(__dirname, "../drizzle");
 
-const sqlite = new Database("data.db");
+const sqlite = new Database(process.env.CADENCE_SEED_DATABASE ?? "data.db");
 sqlite.pragma("journal_mode = WAL");
 sqlite.pragma("foreign_keys = ON");
 
@@ -2735,6 +2736,44 @@ This course is still in draft while the cluster examples are rewritten against t
   }
 
   console.log(`Created ${watchEventRows.length} video watch events.`);
+
+  // ─── Refund review examples ───
+  // These stages retain enrollment; issued and failed outcomes are exercised
+  // through the admin workflow so their access changes are recorded together.
+  const reviewPurchases = db.select().from(schema.purchases).limit(3).all();
+  const reviewer = db
+    .select({ id: schema.users.id })
+    .from(schema.users)
+    .where(eq(schema.users.role, UserRole.Admin))
+    .get()!;
+  const reviewStatuses = [
+    RefundStatus.Requested,
+    RefundStatus.Approved,
+    RefundStatus.Declined,
+  ];
+  for (const [index, purchase] of reviewPurchases.entries()) {
+    const status = reviewStatuses[index];
+    db.insert(schema.refunds)
+      .values({
+        purchaseId: purchase.id,
+        status,
+        reason: "The course does not meet my learning needs.",
+        reviewReason:
+          status === RefundStatus.Declined
+            ? "This purchase is outside the refund request window."
+            : null,
+        amountRefunded: null,
+        paymentReference: null,
+        issuedAt: null,
+        enrollmentSnapshot: null,
+        resolvedAt:
+          status === RefundStatus.Requested ? null : new Date().toISOString(),
+        resolvedByUserId:
+          status === RefundStatus.Requested ? null : reviewer.id,
+      })
+      .run();
+  }
+  console.log(`Created ${countRows(schema.refunds)} refund requests.`);
 
   // ─── Summary ───
 

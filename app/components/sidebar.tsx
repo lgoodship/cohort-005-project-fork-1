@@ -98,6 +98,12 @@ const navItems: NavItem[] = [
     icon: <Tag className="size-4" />,
     roles: [UserRole.Admin],
   },
+  {
+    label: "Refund Requests",
+    to: "/admin/refunds",
+    icon: <Shield className="size-4" />,
+    roles: [UserRole.Admin],
+  },
 ];
 
 function isVisible(item: NavItem, role: UserRole | null): boolean {

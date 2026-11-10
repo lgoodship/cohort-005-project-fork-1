@@ -35,6 +35,8 @@ export enum RefundStatus {
   Requested = "requested",
   Approved = "approved",
   Declined = "declined",
+  Issued = "issued",
+  ProcessingFailed = "processing_failed",
 }
 
 export enum TeamMemberRole {
@@ -242,8 +244,15 @@ export const refunds = sqliteTable(
       .default(RefundStatus.Requested),
     // The learner's own words, in the box on the course page.
     reason: text("reason").notNull(),
-    // Null until someone approves — a declined request refunds nothing.
+    // Approval is a decision, not confirmation that a refund was issued.
     amountRefunded: integer("amount_refunded"),
+    reviewReason: text("review_reason"),
+    paymentReference: text("payment_reference"),
+    issuedAt: text("issued_at"),
+    // Preserve enrollment details so a later payment failure restores access.
+    enrollmentSnapshot: text("enrollment_snapshot", { mode: "json" }).$type<
+      typeof enrollments.$inferSelect
+    >(),
     requestedAt: text("requested_at")
       .notNull()
       .$defaultFn(() => new Date().toISOString()),

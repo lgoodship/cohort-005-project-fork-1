@@ -11,7 +11,14 @@ import { Button } from "~/components/ui/button";
 import { Ticket, AlertCircle, CheckCircle2, Globe } from "lucide-react";
 import { data } from "react-router";
 import { db } from "~/db";
-import { purchases, coupons, courses, enrollments } from "~/db/schema";
+import {
+  purchases,
+  coupons,
+  courses,
+  enrollments,
+  refunds,
+  RefundStatus,
+} from "~/db/schema";
 import { eq, and } from "drizzle-orm";
 
 function getCourseById(id: number) {
@@ -20,6 +27,19 @@ function getCourseById(id: number) {
 
 function getCouponByCode(code: string) {
   return db.select().from(coupons).where(eq(coupons.code, code)).get();
+}
+
+function hasIssuedRefund(purchaseId: number) {
+  return !!db
+    .select({ id: refunds.id })
+    .from(refunds)
+    .where(
+      and(
+        eq(refunds.purchaseId, purchaseId),
+        eq(refunds.status, RefundStatus.Issued)
+      )
+    )
+    .get();
 }
 
 function isUserEnrolled(userId: number, courseId: number) {
@@ -50,6 +70,14 @@ function redeemCoupon(
 
   if (coupon.redeemedByUserId !== null) {
     return { ok: false, error: "Coupon has already been redeemed" };
+  }
+
+  if (hasIssuedRefund(coupon.purchaseId)) {
+    return {
+      ok: false,
+      error:
+        "A refund has been issued for this purchase. Its coupons cannot be redeemed.",
+    };
   }
 
   const existingEnrollment = db
@@ -126,6 +154,13 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   if (!currentUserId) {
     throw redirect(
       `/login?redirectTo=${encodeURIComponent(`/redeem/${code}`)}`
+    );
+  }
+
+  if (hasIssuedRefund(coupon.purchaseId)) {
+    throw data(
+      "A refund has been issued for this purchase. Its coupons cannot be redeemed.",
+      { status: 403 }
     );
   }
 
