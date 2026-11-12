@@ -1,113 +1,58 @@
 # Cadence
 
-Cadence sells video courses to learners. This glossary covers the language around buying courses and getting money back after a purchase.
+Cadence is a video course platform. This glossary defines the shared language for teaching, course access, purchases and refunds.
 
 ## Language
 
 ### People
 
 **Platform Admin**:
-A member of Cadence staff who runs the platform. Only a Platform Admin decides Refund Requests.
+A member of Cadence staff who runs the platform and decides Refund Requests.
 _Avoid_: Admin (on its own), the team, Staff
 
 **Team Admin**:
-A learner who buys and manages a Team Licence. A Team Admin has no say over Refund Requests.
+A learner who buys and manages a Team Licence.
 _Avoid_: Admin (on its own)
+
+**Instructor**:
+The person who owns and manages a course and can see its enrolled learners.
+_Avoid_: Teacher, Author, Creator
 
 ### Purchases
 
 **Purchase**:
-A single payment for a course. It is either an Individual Purchase or a Team Licence.
+A single payment for a course, either an Individual Purchase or a Team Licence.
 _Avoid_: Order, Transaction
 
 **Individual Purchase**:
-A Purchase a learner makes for themselves. It gives the buyer the course.
+A Purchase a learner makes for their own access to a course.
 
 **Team Licence**:
-A Purchase a Team Admin makes for others. It grants Seats, not the course itself; the buyer can't watch the course through it.
+A Purchase a Team Admin makes to provide Seats for other learners, without granting the buyer course access through that Purchase.
 _Avoid_: Team purchase, Bulk purchase
 
 **Seat**:
-One place on a Team Licence that a learner can claim to get the course.
+One place on a Team Licence, unclaimed until a learner claims it for course access and claimed once it belongs to that learner.
 _Avoid_: Coupon, Code, Voucher
 
-**Unclaimed Seat**:
-A Seat no learner has claimed yet.
+### Course access
 
-**Claimed Seat**:
-A Seat a learner has claimed. It belongs to that learner, so a Team Licence with any Claimed Seat can't be refunded.
+**Enrollment**:
+A learner's current right to access a course, obtained through an Individual Purchase or a claimed Seat. A learner has one Enrollment per course, regardless of how many Purchases or Seats grant access.
+
+**Lapsed**:
+A learner's status for a course when they previously had an Enrollment and no longer do.
+
+**Watched**:
+The amount of video counted for a learner in a course: the furthest playback position reached in each lesson, added together.
+_Avoid_: Viewed, Progress
 
 ### Refunds
 
 **Refund Request**:
-The buyer's ask, with their reason, to get back what they paid for one specific Purchase. A Platform Admin approves or declines it. One Purchase can have several Refund Requests over time, but only one can be undecided at once.
-_Avoid_: Refund (for the ask itself), Cancellation, Reversal, Chargeback
-
-**Open Refund Request**:
-A Refund Request no Platform Admin has decided yet. The buyer keeps the course while it is open, and a Team Licence's Unclaimed Seats can't be claimed.
-_Avoid_: Pending, Requested, Awaiting review
-
-**Approved Refund Request**:
-A Refund Request a Platform Admin has accepted. Approving it ends what the Purchase granted (the buyer's place on the course for an Individual Purchase; its Unclaimed Seats, which can then never be claimed, for a Team Licence) and leads to a Refund.
-
-**Declined Refund Request**:
-A Refund Request a Platform Admin has turned down. Nothing the Purchase granted is lost, it has no Refund, and the buyer may raise a new Refund Request.
+The buyer's ask, with their reason, to get back what they paid for one specific Purchase. It is open until a Platform Admin decides it, then approved or declined.
+_Avoid_: Refund (for the ask itself), Cancellation, Reversal, Chargeback, Pending (for an open request)
 
 **Refund**:
-The money returned to the buyer after their Refund Request is approved. It is always the full amount they paid. A declined Refund Request has no Refund.
+The money returned to the buyer following approval of a Refund Request.
 _Avoid_: Reversal, Chargeback, Cancellation
-
-**Pending Refund**:
-A Refund whose Refund Request has been approved, where the money hasn't been confirmed as sent yet.
-_Avoid_: Pending (for a Refund Request awaiting review)
-
-**Issued Refund**:
-A Refund where the money has been confirmed as sent back to the buyer.
-_Avoid_: Completed, Paid out
-
-**Failed Refund**:
-A Refund where the money couldn't be sent. The Refund Request stays approved, because the decision hasn't changed.
-
-### Other terms
-
-**Watch Limit**:
-A Refund is only offered on a course with under two hours watched. Past that, the Learner has had the course, and the refund form turns them away.
-_Avoid_: Watch cap, Viewing threshold
-
-**Refunds table**:
-`refunds` — one row per Refund. Columns: `id`, `purchase_id`, `status` (`open`, `approved`, `declined`), `reason`, `amount_refunded`, `requested_at`, `resolved_at`, `resolved_by_user_id`, `decision_note`.
-
-**refunded_at**:
-Nullable text column on `coupons`. An ISO timestamp, set on every unclaimed coupon when its team purchase is refunded. `getSeatAvailability` returns `"refunded"` for it.
-
-**resolved_by_user_id**:
-Integer column on `refunds`, referencing `users.id`. Null until an Admin approves or declines the Refund.
-
-**RefundRequestCard**:
-The component that draws one Refund Request on `/admin/refunds`, with its Approve and Decline buttons.
-
-**Button**:
-A clickable element that fires an action when the user presses it. Built on `~/components/ui/button`.
-
-**Component**:
-A React function that returns JSX.
-
-**cwd**:
-The directory the dev server was started from. Paths in `scripts/` resolve from here.
-
-**Loader**:
-The React Router function that fetches a route's data on the server before the page renders.
-
-**Slug**:
-The URL-safe name of a course, as in `/courses/:slug`.
-
-**Lapsed**:
-An Enrollment that is no longer active. Shown as a badge on the instructor's student roster.
-
-**Instructor**:
-Speaks for their own courses only. An Instructor builds and edits the courses they own, and sees the learners enrolled on them.
-_Avoid_: Teacher, Author, Creator
-
-**Watched**:
-Seconds of video a Learner has actually played in a course: the furthest point reached in each lesson, added up. Not lessons opened.
-_Avoid_: Viewed, Progress
