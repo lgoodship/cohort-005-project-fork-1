@@ -1,5 +1,7 @@
 # Refund requests
 
+This page describes the current implementation. The [accepted refund ADRs](adr/README.md) record the revised approval design, which is not yet implemented: approval will end the refunded purchase's access entitlement, review will show progress and rule flags, and usage breaches will no longer block submission. Where this page differs, the ADRs govern the intended behaviour.
+
 [The glossary](../GLOSSARY.md) defines the language shared by the application and refund emails.
 
 Customers request a full refund from the course page and track its status in Settings. The amount is always the original purchase's amount paid, including any discount.
